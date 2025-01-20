@@ -1,7 +1,9 @@
 package config
 
 import (
+	"errors"
 	"fmt"
+	"os"
 	"strings"
 
 	validator "github.com/go-playground/validator/v10"
@@ -10,6 +12,7 @@ import (
 	"github.com/knadh/koanf/providers/file"
 	"github.com/knadh/koanf/providers/structs"
 	koanf "github.com/knadh/koanf/v2"
+	"github.com/rs/zerolog/log"
 )
 
 const (
@@ -29,7 +32,11 @@ func New() (*Config, error) {
 	}
 
 	err = k.Load(file.Provider(fileName), yaml.Parser())
-	if err != nil {
+
+	switch {
+	case errors.As(err, new(*os.PathError)):
+		log.Warn().Msg("config file not found, using default config")
+	case err != nil:
 		return nil, fmt.Errorf("loading config file: %w", err)
 	}
 
