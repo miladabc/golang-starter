@@ -1,0 +1,44 @@
+services:
+  server:
+    build:
+      context: .
+      dockerfile: dev.Dockerfile
+    image: miladabc/golang-starter
+    container_name: starter-server
+    restart: unless-stopped
+    command: ["serve"]
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./:/app
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  mysql:
+    image: mysql:8.4.3
+    container_name: starter-mysql
+    restart: unless-stopped
+    environment:
+      TZ: Asia/Tehran
+      MYSQL_DATABASE: starter
+      MYSQL_USER: starter
+      MYSQL_PASSWORD: starter
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_ALLOW_EMPTY_ROOT_PASSWORD: "yes"
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+      # - ./initdb.d:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD", "mysql", "-u", "root", "-proot", "--execute", "SELECT 1;"]
+      start_period: 0s
+      start_interval: 1s
+      interval: 1s
+      timeout: 1s
+      retries: 10
+
+volumes:
+  mysql-data:
+    driver: local
