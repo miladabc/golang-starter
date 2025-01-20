@@ -46,8 +46,6 @@ func (s *Server) Start() {
 }
 
 func (s *Server) Shutdown(ctx context.Context) {
-	log.Info().Msg("shutting down http server...")
-
 	deadline, cancel := context.WithTimeout(ctx, s.cfg.ShutdownTimeout)
 	defer cancel()
 

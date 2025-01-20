@@ -3,14 +3,18 @@ package container
 import (
 	"context"
 
+	"github.com/jmoiron/sqlx"
 	"github.com/miladabc/golang-starter/internal/config"
 	"github.com/miladabc/golang-starter/internal/http"
-	"github.com/miladabc/golang-starter/internal/log"
+	ilog "github.com/miladabc/golang-starter/internal/log"
 	"github.com/miladabc/golang-starter/internal/todo"
+	"github.com/miladabc/golang-starter/pkg/mysql"
+	"github.com/rs/zerolog/log"
 )
 
 type Container struct {
 	Config     *config.Config
+	DB         *sqlx.DB
 	HTTPRouter *http.Router
 	HTTPServer *http.Server
 }
@@ -30,6 +34,11 @@ func (c *Container) Init() error {
 		return err
 	}
 
+	err = c.InitMySQL()
+	if err != nil {
+		return err
+	}
+
 	c.InitRouter()
 	c.InitServer()
 
@@ -44,7 +53,12 @@ func (c *Container) InitConfig() (err error) {
 }
 
 func (c *Container) InitLogger() error {
-	return log.Init(c.Config.Log)
+	return ilog.Init(c.Config.Log)
+}
+
+func (c *Container) InitMySQL() (err error) {
+	c.DB, err = mysql.Connect(c.Config.DB)
+	return
 }
 
 func (c *Container) InitRouter() {
@@ -60,5 +74,14 @@ func (c *Container) InitTodo() {
 }
 
 func (c *Container) Shutdown(ctx context.Context) {
-	c.HTTPServer.Shutdown(ctx)
+	if c.HTTPServer != nil {
+		c.HTTPServer.Shutdown(ctx)
+	}
+
+	if c.DB != nil {
+		err := c.DB.Close()
+		if err != nil {
+			log.Error().Err(err).Msg("closing db connection")
+		}
+	}
 }

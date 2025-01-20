@@ -16,3 +16,12 @@ logs:
 bash:
 	docker compose exec server sh
 
+migrate:
+	docker compose up migrations
+
+migration:
+	@read -p "Enter migration name: " migration_name; \
+	file_name=$(shell date +%s)_$$migration_name; \
+	touch internal/migrations/$$file_name.up.sql; \
+	touch internal/migrations/$$file_name.down.sql
+

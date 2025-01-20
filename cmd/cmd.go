@@ -14,6 +14,13 @@ func Execute() {
 		Usage: "boilerplate for starting new golang projects",
 		Commands: []*cli.Command{
 			{
+				Name:  "migrate",
+				Usage: "run database migrations",
+				Action: func(*cli.Context) error {
+					return app.RunDBMigrations()
+				},
+			},
+			{
 				Name:  "serve",
 				Usage: "run http server",
 				Action: func(*cli.Context) error {

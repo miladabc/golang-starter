@@ -3,12 +3,29 @@ services:
     build:
       context: .
       dockerfile: dev.Dockerfile
-    image: miladabc/golang-starter
+    image: miladabc/golang-starter-dev
     container_name: starter-server
     restart: unless-stopped
     command: ["serve"]
     ports:
       - "8080:8080"
+    volumes:
+      - ./:/app
+    depends_on:
+      mysql:
+        condition: service_healthy
+      migrations:
+        condition: service_completed_successfully
+
+  migrations:
+    build:
+      context: .
+      dockerfile: dev.Dockerfile
+    image: miladabc/golang-starter-dev
+    container_name: starter-migrations
+    restart: on-failure
+    entrypoint: []
+    command: ["go", "run", ".", "migrate"]
     volumes:
       - ./:/app
     depends_on:
