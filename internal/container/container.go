@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/jmoiron/sqlx"
+	"github.com/miladabc/golang-starter/docs"
 	"github.com/miladabc/golang-starter/internal/config"
 	"github.com/miladabc/golang-starter/internal/http"
 	ilog "github.com/miladabc/golang-starter/internal/log"
@@ -17,6 +18,7 @@ type Container struct {
 	DB         *sqlx.DB
 	HTTPRouter *http.Router
 	HTTPServer *http.Server
+	Todo       *todo.App
 }
 
 func New() *Container {
@@ -41,6 +43,7 @@ func (c *Container) Init() error {
 
 	c.InitRouter()
 	c.InitServer()
+	c.InitSwagger()
 
 	c.InitTodo()
 
@@ -69,13 +72,22 @@ func (c *Container) InitServer() {
 	c.HTTPServer = http.NewServer(c.Config.Server, c.HTTPRouter.Handler())
 }
 
+func (c *Container) InitSwagger() {
+	docs.RegisterRoutes(c.HTTPRouter.Root)
+}
+
 func (c *Container) InitTodo() {
-	todo.Init(c.HTTPRouter)
+	c.Todo = todo.New(c.DB)
+	c.Todo.RegisterRoutes(c.HTTPRouter.V1)
 }
 
 func (c *Container) Shutdown(ctx context.Context) {
 	if c.HTTPServer != nil {
 		c.HTTPServer.Shutdown(ctx)
+	}
+
+	if c.Todo != nil {
+		c.Todo.Shutdown()
 	}
 
 	if c.DB != nil {

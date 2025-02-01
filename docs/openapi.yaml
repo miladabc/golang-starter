@@ -1,0 +1,48 @@
+openapi: "3.0.4"
+
+info:
+  title: golang-starter
+  description: API documentation
+  version: 1.0.0
+
+servers:
+  - url: "http://localhost:8080"
+    description: dev
+
+tags:
+  - name: todo
+
+paths:
+  "/todo":
+    get:
+      tags:
+        - todo
+      summary: Returns last created todo
+      operationId: todo
+      responses:
+        "200":
+          $ref: "#/components/responses/todoResponse"
+
+components:
+  responses:
+    todoResponse:
+      description: OK
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/todo"
+
+  schemas:
+    todo:
+      type: object
+      properties:
+        id:
+          type: integer
+        description:
+          type: string
+        due_date:
+          $ref: "#/components/schemas/rfc3339DateTime"
+
+    rfc3339DateTime:
+      type: string
+      example: "2006-01-02T15:04:05+03:30"

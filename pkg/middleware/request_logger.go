@@ -25,7 +25,7 @@ func AccessRequestLogger() echo.MiddlewareFunc {
 		LogContentLength: true,
 		LogResponseSize:  true,
 		LogError:         true,
-		LogValuesFunc: func(c echo.Context, v middleware.RequestLoggerValues) error {
+		LogValuesFunc: func(_ echo.Context, v middleware.RequestLoggerValues) error {
 			log.Info().
 				Int64("latency", int64(v.Latency)).
 				Str("latency_human", v.Latency.String()).

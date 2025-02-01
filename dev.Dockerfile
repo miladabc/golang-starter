@@ -12,5 +12,5 @@ RUN --mount=type=cache,target=/go/pkg/mod \
 
 COPY . .
 
-ENTRYPOINT ["wgo", "run", "."]
+ENTRYPOINT ["wgo", "-file", "openapi.yaml","go", "run", "."]
 

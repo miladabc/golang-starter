@@ -1,14 +1,21 @@
 package todo
 
 import (
-	echo "github.com/labstack/echo/v4"
-	"github.com/miladabc/golang-starter/internal/http"
+	"github.com/jmoiron/sqlx"
 )
 
-func Init(router *http.Router) {
-	g := router.V1.Group("/todo")
-
-	g.GET("", func(c echo.Context) error {
-		return c.String(200, "todo")
-	})
+type App struct {
+	controller *Controller
+	Repo       *Repository
 }
+
+func New(db *sqlx.DB) *App {
+	repo := NewRepository(db)
+
+	return &App{
+		controller: NewController(repo),
+		Repo:       repo,
+	}
+}
+
+func (a *App) Shutdown() {}
