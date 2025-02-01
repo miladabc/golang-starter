@@ -2,7 +2,8 @@ name: qualify
 
 on: push
 
-permissions: {}
+permissions:
+  contents: read
 
 env:
   GO_VERSION: 1.23.5
@@ -19,8 +20,6 @@ jobs:
         uses: robherley/go-test-action@v0
 
   go-mod-tidy:
-    permissions:
-      contents: read
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -31,8 +30,6 @@ jobs:
         uses: j0hnsmith/go-mod-check@v1
 
   golangci-lint:
-    permissions:
-      contents: read
     runs-on: ubuntu-latest
     env:
       GOLANGCI_LINT_VERSION: v1.63.4
