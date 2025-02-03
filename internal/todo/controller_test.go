@@ -4,11 +4,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"net/http/httptest"
 	"testing"
 
 	"github.com/labstack/echo/v4"
-	"github.com/miladabc/golang-starter/pkg/validator"
+	"github.com/miladabc/golang-starter/internal/http/httptest"
 	"github.com/stretchr/testify/require"
 )
 
@@ -17,11 +16,7 @@ func TestControllerLastTodo(t *testing.T) {
 
 	repo := NewMockRepo(MockRepoOpt{Err: nil})
 	con := NewController(repo)
-	req := httptest.NewRequest(http.MethodGet, "/", nil)
-	res := httptest.NewRecorder()
-	r := echo.New()
-	r.Validator = validator.NewEchoValidator()
-	c := r.NewContext(req, res)
+	c, res := httptest.NewEchoContext(t)
 
 	err := con.LastTodo(c)
 	require.NoError(t, err)
@@ -45,11 +40,7 @@ func TestControllerLastTodo_NotFound(t *testing.T) {
 
 	repo := NewMockRepo(MockRepoOpt{Err: ErrTodoNotFound})
 	con := NewController(repo)
-	req := httptest.NewRequest(http.MethodGet, "/", nil)
-	res := httptest.NewRecorder()
-	r := echo.New()
-	r.Validator = validator.NewEchoValidator()
-	c := r.NewContext(req, res)
+	c, _ := httptest.NewEchoContext(t)
 
 	err := con.LastTodo(c)
 
@@ -65,11 +56,7 @@ func TestControllerLastTodo_Err(t *testing.T) {
 	dErr := fmt.Errorf("db error")
 	repo := NewMockRepo(MockRepoOpt{Err: dErr})
 	con := NewController(repo)
-	req := httptest.NewRequest(http.MethodGet, "/", nil)
-	res := httptest.NewRecorder()
-	r := echo.New()
-	r.Validator = validator.NewEchoValidator()
-	c := r.NewContext(req, res)
+	c, _ := httptest.NewEchoContext(t)
 
 	err := con.LastTodo(c)
 	require.ErrorIs(t, err, dErr)
