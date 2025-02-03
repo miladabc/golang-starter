@@ -7,6 +7,8 @@ services:
     container_name: starter-server
     restart: unless-stopped
     command: ["serve"]
+    environment:
+      TZ: Asia/Tehran
     ports:
       - "8080:8080"
     volumes:
@@ -26,6 +28,34 @@ services:
     restart: on-failure
     entrypoint: []
     command: ["go", "run", ".", "migrate"]
+    environment:
+      TZ: Asia/Tehran
+    volumes:
+      - ./:/app
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  tests:
+    build:
+      context: .
+      dockerfile: dev.Dockerfile
+    image: miladabc/golang-starter-dev
+    container_name: starter-tests
+    restart: no
+    entrypoint: []
+    command:
+      [
+        "gotestsum",
+        "--format",
+        "testname",
+        "--",
+        "-covermode",
+        "count",
+        "./...",
+      ]
+    environment:
+      TZ: Asia/Tehran
     volumes:
       - ./:/app
     depends_on:

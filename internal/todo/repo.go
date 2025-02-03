@@ -10,17 +10,24 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-type Repository struct {
+type Repository interface {
+	Create(ctx context.Context, description string, dueDate time.Time) (Todo, error)
+	FindLast(ctx context.Context) (Todo, error)
+}
+
+type MySQLRepo struct {
 	db *sqlx.DB
 }
 
+var _ Repository = (*MySQLRepo)(nil)
+
 var ErrTodoNotFound = fmt.Errorf("todo not found")
 
-func NewRepository(db *sqlx.DB) *Repository {
-	return &Repository{db}
+func NewRepository(db *sqlx.DB) *MySQLRepo {
+	return &MySQLRepo{db}
 }
 
-func (r *Repository) Create(ctx context.Context, description string, dueDate time.Time) (Todo, error) {
+func (r *MySQLRepo) Create(ctx context.Context, description string, dueDate time.Time) (Todo, error) {
 	query := "INSERT INTO todo_items (description, due_date) VALUES (?, ?)"
 
 	res, err := r.db.ExecContext(ctx, query, description, dueDate)
@@ -40,7 +47,7 @@ func (r *Repository) Create(ctx context.Context, description string, dueDate tim
 	}, nil
 }
 
-func (r *Repository) FindLast(ctx context.Context) (Todo, error) {
+func (r *MySQLRepo) FindLast(ctx context.Context) (Todo, error) {
 	query := "SELECT id, description, due_date FROM todo_items ORDER BY id DESC LIMIT 1"
 
 	var t Todo

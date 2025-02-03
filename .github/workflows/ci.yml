@@ -11,11 +11,24 @@ env:
 jobs:
   test:
     runs-on: ubuntu-latest
+    container:
+      image: golang:1.23.5-alpine3.21
+      env:
+        TZ: Asia/Tehran
+    services:
+      mysql:
+        image: mysql:8.4.3
+        ports:
+          - 3306:3306
+        env:
+          TZ: Asia/Tehran
+          MYSQL_DATABASE: starter
+          MYSQL_USER: starter
+          MYSQL_PASSWORD: starter
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_ALLOW_EMPTY_ROOT_PASSWORD: "yes"
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-go@v5
-        with:
-          go-version: ${{ env.GO_VERSION }}
       - name: test
         uses: robherley/go-test-action@v0
 

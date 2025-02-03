@@ -9,19 +9,26 @@ import (
 	"github.com/golang-migrate/migrate/v4/source/iofs"
 )
 
-func NewMigration(s fs.FS, path string, db *sql.DB, dbname string) (*migrate.Migrate, error) {
-	source, err := iofs.New(s, path)
+type MigrationConfig struct {
+	FS     fs.FS
+	Path   string
+	DB     *sql.DB
+	DBName string
+}
+
+func NewMigration(cfg MigrationConfig) (*migrate.Migrate, error) {
+	source, err := iofs.New(cfg.FS, cfg.Path)
 	if err != nil {
 		return nil, err
 	}
 
-	driver, err := mysql.WithInstance(db, &mysql.Config{
-		DatabaseName:    dbname,
+	driver, err := mysql.WithInstance(cfg.DB, &mysql.Config{
+		DatabaseName:    cfg.DBName,
 		MigrationsTable: "schema_migrations",
 	})
 	if err != nil {
 		return nil, err
 	}
 
-	return migrate.NewWithInstance("iofs", source, dbname, driver)
+	return migrate.NewWithInstance("iofs", source, cfg.DBName, driver)
 }
