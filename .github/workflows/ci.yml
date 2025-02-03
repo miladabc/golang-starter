@@ -11,6 +11,10 @@ env:
 jobs:
   test:
     runs-on: ubuntu-latest
+    container:
+      image: golang:${{ env.GO_VERSION }}-alpine3.21
+      env:
+        TZ: Asia/Tehran
     services:
       mysql:
         image: mysql:8.4.3
@@ -25,9 +29,6 @@ jobs:
           MYSQL_ALLOW_EMPTY_ROOT_PASSWORD: "yes"
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-go@v5
-        with:
-          go-version: ${{ env.GO_VERSION }}
       - name: test
         uses: robherley/go-test-action@v0
 
