@@ -22,7 +22,12 @@ func RunDBMigrations() error {
 		return err
 	}
 
-	m, err := mysql.NewMigration(migrations.FS, migrations.Path, c.DB.DB, c.Config.DB.DBName)
+	m, err := mysql.NewMigration(mysql.MigrationConfig{
+		FS:     migrations.FS,
+		Path:   migrations.Path,
+		DB:     c.DB.DB,
+		DBName: c.Config.DB.DBName,
+	})
 	if err != nil {
 		return fmt.Errorf("preparing migration: %w", err)
 	}

@@ -6,7 +6,7 @@ import (
 
 type App struct {
 	controller *Controller
-	Repo       *Repository
+	Repo       Repository
 }
 
 func New(db *sqlx.DB) *App {

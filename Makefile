@@ -1,8 +1,8 @@
+server:
+	docker compose up server
+
 up:
 	docker compose up
-
-start:
-	docker compose start
 
 stop:
 	docker compose stop
@@ -13,15 +13,19 @@ down:
 logs:
 	docker compose logs -f
 
-bash:
-	docker compose exec server sh
+tests:
+	docker compose up tests
 
 migrate:
 	docker compose up migrations
+	@make stop
 
 migration:
 	@read -p "Enter migration name: " migration_name; \
 	file_name=$(shell date +%s)_$$migration_name; \
 	touch internal/migrations/$$file_name.up.sql; \
 	touch internal/migrations/$$file_name.down.sql
+
+bash:
+	docker compose exec server sh
 

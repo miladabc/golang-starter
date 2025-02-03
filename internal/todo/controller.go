@@ -9,8 +9,10 @@ import (
 )
 
 type Controller struct {
-	repo *Repository
+	repo Repository
 }
+
+type LastTodoRequest struct{}
 
 type LastTodoResponse struct {
 	ID          int64  `json:"id"`
@@ -18,11 +20,20 @@ type LastTodoResponse struct {
 	DueDate     string `json:"due_date"`
 }
 
-func NewController(repo *Repository) *Controller {
+func NewController(repo Repository) *Controller {
 	return &Controller{repo}
 }
 
 func (cc *Controller) LastTodo(c echo.Context) error {
+	var req LastTodoRequest
+	if err := c.Bind(&req); err != nil {
+		return echo.NewHTTPError(http.StatusUnprocessableEntity)
+	}
+
+	if err := c.Validate(&req); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest)
+	}
+
 	t, err := cc.repo.FindLast(c.Request().Context())
 	if err != nil {
 		return mapError(err)
